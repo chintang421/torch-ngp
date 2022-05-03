@@ -172,6 +172,7 @@ class NeRFDataset:
             
             self.poses = []
             self.images = []
+            self.times = []
             for f in tqdm.tqdm(frames, desc=f'Loading {type} data:'):
                 f_path = os.path.join(self.root_path, f['file_path'])
                 if self.mode == 'blender' and f_path[-4:] != '.png':
@@ -200,10 +201,16 @@ class NeRFDataset:
 
                 self.poses.append(pose)
                 self.images.append(image)
+                if 'time' in f:
+                    self.times.append(f['time'])
+            if self.times == []:
+                self.times = None
             
         self.poses = torch.from_numpy(np.stack(self.poses, axis=0)) # [N, 4, 4]
         if self.images is not None:
             self.images = torch.from_numpy(np.stack(self.images, axis=0)) # [N, H, W, C]
+        if self.times is not None:
+            self.times = torch.Tensor(self.times) # [N]
         
         # calculate mean radius of all camera poses
         self.radius = self.poses[:, :3, 3].norm(dim=-1).mean(0).item()
@@ -225,6 +232,8 @@ class NeRFDataset:
             self.poses = self.poses.to(self.device)
             if self.images is not None:
                 self.images = self.images.to(torch.half if self.fp16 else torch.float).to(self.device)
+            if self.times is not None:
+                self.times = self.times.to(self.device)
             if self.error_map is not None:
                 self.error_map = self.error_map.to(self.device)
 
@@ -287,6 +296,10 @@ class NeRFDataset:
                 C = images.shape[-1]
                 images = torch.gather(images.view(B, -1, C), 1, torch.stack(C * [rays['inds']], -1)) # [B, N, 3/4]
             results['images'] = images
+
+        if self.times is not None:
+            times = self.times[index].to(self.device)
+            results['times'] = times
         
         # need inds to update error_map
         if error_map is not None:

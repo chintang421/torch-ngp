@@ -374,7 +374,10 @@ class Trainer(object):
             H, W = data['H'], data['W']
 
             # currently fix white bg, MUST force all rays!
-            outputs = self.model.render(rays_o, rays_d, staged=False, bg_color=None, perturb=True, force_all_rays=True, **vars(self.opt))
+            if self.opt.tnerf: ##gg
+                outputs = self.model.render(rays_o, rays_d, data['times'], staged=False, bg_color=None, perturb=True, force_all_rays=True, **vars(self.opt))
+            else:
+                outputs = self.model.render(rays_o, rays_d, staged=False, bg_color=None, perturb=True, force_all_rays=True, **vars(self.opt))
             pred_rgb = outputs['image'].reshape(B, H, W, 3).permute(0, 3, 1, 2).contiguous()
 
             # [debug] uncomment to plot the images used in train_step
@@ -399,7 +402,10 @@ class Trainer(object):
             bg_color = None
             gt_rgb = images
 
-        outputs = self.model.render(rays_o, rays_d, staged=False, bg_color=bg_color, perturb=True, **vars(self.opt))
+        if self.opt.tnerf: ##gg
+            outputs = self.model.render(rays_o, rays_d, data['times'], staged=False, bg_color=bg_color, perturb=True, **vars(self.opt))
+        else:
+            outputs = self.model.render(rays_o, rays_d, staged=False, bg_color=bg_color, perturb=True, **vars(self.opt))
     
         pred_rgb = outputs['image']
 
@@ -447,7 +453,10 @@ class Trainer(object):
         else:
             gt_rgb = images
         
-        outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=False, **vars(self.opt))
+        if self.opt.tnerf: ##gg
+            outputs = self.model.render(rays_o, rays_d, data['times'], staged=True, bg_color=bg_color, perturb=False, **vars(self.opt))
+        else:
+            outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=False, **vars(self.opt))
 
         pred_rgb = outputs['image'].reshape(B, H, W, 3)
         pred_depth = outputs['depth'].reshape(B, H, W)
@@ -465,8 +474,11 @@ class Trainer(object):
 
         if bg_color is not None:
             bg_color = bg_color.to(self.device)
-
-        outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=perturb, **vars(self.opt))
+        
+        if self.opt.tnerf: ##gg
+            outputs = self.model.render(rays_o, rays_d, data['times'], staged=True, bg_color=bg_color, perturb=perturb, **vars(self.opt))
+        else:
+            outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=perturb, **vars(self.opt))
 
         pred_rgb = outputs['image'].reshape(-1, H, W, 3)
         pred_depth = outputs['depth'].reshape(-1, H, W)
