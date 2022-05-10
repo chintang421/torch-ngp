@@ -374,7 +374,7 @@ class Trainer(object):
             H, W = data['H'], data['W']
 
             # currently fix white bg, MUST force all rays!
-            if self.opt.tnerf: ##gg
+            if self.opt.tnerf or self.opt.dnerf: ##gg
                 outputs = self.model.render(rays_o, rays_d, data['times'], staged=False, bg_color=None, perturb=True, force_all_rays=True, **vars(self.opt))
             else:
                 outputs = self.model.render(rays_o, rays_d, staged=False, bg_color=None, perturb=True, force_all_rays=True, **vars(self.opt))
@@ -402,7 +402,7 @@ class Trainer(object):
             bg_color = None
             gt_rgb = images
 
-        if self.opt.tnerf: ##gg
+        if self.opt.tnerf or self.opt.dnerf: ##gg
             outputs = self.model.render(rays_o, rays_d, data['times'], staged=False, bg_color=bg_color, perturb=True, **vars(self.opt))
         else:
             outputs = self.model.render(rays_o, rays_d, staged=False, bg_color=bg_color, perturb=True, **vars(self.opt))
@@ -453,7 +453,7 @@ class Trainer(object):
         else:
             gt_rgb = images
         
-        if self.opt.tnerf: ##gg
+        if self.opt.tnerf or self.opt.dnerf: ##gg
             outputs = self.model.render(rays_o, rays_d, data['times'], staged=True, bg_color=bg_color, perturb=False, **vars(self.opt))
         else:
             outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=False, **vars(self.opt))
@@ -475,7 +475,7 @@ class Trainer(object):
         if bg_color is not None:
             bg_color = bg_color.to(self.device)
         
-        if self.opt.tnerf: ##gg
+        if self.opt.tnerf or self.opt.dnerf: ##gg
             outputs = self.model.render(rays_o, rays_d, data['times'], staged=True, bg_color=bg_color, perturb=perturb, **vars(self.opt))
         else:
             outputs = self.model.render(rays_o, rays_d, staged=True, bg_color=bg_color, perturb=perturb, **vars(self.opt))

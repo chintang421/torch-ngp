@@ -17,6 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=0)
 
     ### training options
+    parser.add_argument('--dnerf', action='store_true', help="is dnerf") ##gg
     parser.add_argument('--tnerf', action='store_true', help="is tnerf") ##gg
     parser.add_argument('--iters', type=int, default=30000, help="training iters")
     parser.add_argument('--lr', type=float, default=1e-2, help="initial learning rate")
@@ -65,7 +66,9 @@ if __name__ == '__main__':
         from nerf.network_ff import NeRFNetwork
     elif opt.tcnn:
         opt.fp16 = True
-        if opt.tnerf: ##gg
+        if opt.dnerf: ##gg
+            from nerf.network_tcnn import DNeRFNetwork as NeRFNetwork
+        elif opt.tnerf: ##gg
             from nerf.network_tcnn import TNeRFNetwork as NeRFNetwork
         else:
             from nerf.network_tcnn import NeRFNetwork
