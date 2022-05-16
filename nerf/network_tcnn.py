@@ -331,7 +331,8 @@ class DNeRFNetwork(TNeRFRenderer):
         self.geo_feat_dim = geo_feat_dim
 
         per_level_scale = np.exp2(np.log2(2048 * bound / 16) / (16 - 1))
-
+        
+        '''
         self.encoder = tcnn.Encoding(
             n_input_dims=3,
             encoding_config={
@@ -343,9 +344,17 @@ class DNeRFNetwork(TNeRFRenderer):
                 "per_level_scale": per_level_scale,
             },
         )
+        '''
+        self.encoder = tcnn.Encoding(
+            n_input_dims=3,
+            encoding_config={
+                "otype": "Frequency",
+                "n_frequencies": 10,
+            },
+        )
 
         self.sigma_net = tcnn.Network(
-            n_input_dims=32,
+            n_input_dims=self.encoder.n_output_dims,#32,
             n_output_dims=1 + self.geo_feat_dim,
             network_config={
                 "otype": "FullyFusedMLP",
